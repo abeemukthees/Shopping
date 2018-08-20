@@ -9,13 +9,16 @@ import android.view.*
 import android.view.View.GONE
 import com.abeemukthees.domain.base.State
 import com.abeemukthees.domain.entities.Product
-import com.abeemukthees.domain.statemachine.HomeAction
-import com.abeemukthees.domain.statemachine.HomeState
+import com.abeemukthees.domain.statemachine.home.HomeAction
+import com.abeemukthees.domain.statemachine.home.HomeState
 import com.abeemukthees.shopping.base.BaseActivity
+import com.abeemukthees.shopping.user.SignInActivity
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
+import com.jakewharton.rxbinding2.view.RxView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home.*
 import kotlinx.android.synthetic.main.item_product.view.*
+import org.jetbrains.anko.startActivity
 import org.koin.android.architecture.ext.viewModel
 
 class HomeActivity : BaseActivity() {
@@ -43,6 +46,8 @@ class HomeActivity : BaseActivity() {
                 .filter { it }
                 .map { HomeAction.LoadMoreDataAction }
                 .subscribe(homeViewModel.input))
+
+        addDisposable(RxView.clicks(fab).subscribe { startActivity<SignInActivity>() })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -62,8 +67,6 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun setupViews(state: State) {
-
-        Log.d(TAG, "State ${state::class.simpleName}")
 
         when (state) {
 

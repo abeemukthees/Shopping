@@ -2,7 +2,7 @@ package com.abeemukthees.data
 
 import com.abeemukthees.domain.entities.Product
 import com.abeemukthees.domain.repository.ProductRepository
-import com.abeemukthees.domain.usecases.GetProducts
+import com.abeemukthees.domain.usecases.product.GetProducts
 import io.reactivex.Observable
 
 class ProductRepositoryImpl(private val dataStoreFactory: DataStoreFactory) : ProductRepository {

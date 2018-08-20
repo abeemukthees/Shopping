@@ -1,24 +1,23 @@
-package com.abeemukthees.domain.statemachine
+package com.abeemukthees.domain.statemachine.home
 
 import com.abeemukthees.domain.base.Action
+import com.abeemukthees.domain.base.BaseStateMachine
 import com.abeemukthees.domain.base.State
 import com.abeemukthees.domain.entities.Product
-import com.abeemukthees.domain.usecases.GetProducts
+import com.abeemukthees.domain.usecases.product.GetProducts
 import com.freeletics.rxredux.reduxStore
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 
-interface LoadDataAction : Action
 
 sealed class HomeAction : Action {
 
-    object LoadInitialDataAction : HomeAction(), LoadDataAction
+    object LoadInitialDataAction : HomeAction()
 
-    object LoadMoreDataAction : HomeAction(), LoadDataAction
+    object LoadMoreDataAction : HomeAction()
 
     //object LoadingData : HomeAction()
-
 
 }
 
@@ -50,23 +49,28 @@ sealed class HomeState : State {
 
     object LoadingFirstTimeState : HomeState()
 
-    data class ErrorLoadingInitialDataState(val errorMessage: String) : HomeState()
-
     data class ErrorLoadingMoreDataState(val error: Throwable) : HomeState()
 
     data class ShowDataState(override val items: List<Product>, override val page: Int) : HomeState(), ContainsCollection
 
     data class ShowDataAndLoadMoreState(override val items: List<Product>, override val page: Int) : HomeState(), ContainsCollection
 
+    data class ErrorLoadingInitialDataState(val errorMessage: String) : HomeState()
+
     data class ShowDataAndLoadMoreErrorState(override val items: List<Product>, override val page: Int, val errorMessage: String) : HomeState(), ContainsCollection
 
 }
 
-class HomeStateMachine(getProducts: GetProducts) {
+class HomeStateMachine(getProducts: GetProducts) : BaseStateMachine {
 
-    val input: Relay<Action> = PublishRelay.create()
 
-    val state: Observable<State> = input
+    init {
+        println("Init... HomeStateMachine")
+    }
+
+    override val input: Relay<Action> = PublishRelay.create()
+
+    override val state: Observable<State> = input
             .doOnNext { println("Input Action ${it.javaClass.simpleName}") }
             .reduxStore(
                     initialState = HomeState.InitialHomeState,
@@ -79,7 +83,7 @@ class HomeStateMachine(getProducts: GetProducts) {
      * The state reducer.
      * Takes Actions and the current state to calculate the new state.
      */
-    private fun reducer(state: State, action: Action): State {
+    override fun reducer(state: State, action: Action): State {
         //println("Reducing state =  ${state::class.simpleName}, action = ${action::class.simpleName}")
         return when (action) {
 

@@ -3,7 +3,7 @@ package com.abeemukthees.data.dummy
 import android.content.Context
 import android.util.Log
 import com.abeemukthees.domain.entities.Product
-import com.abeemukthees.domain.usecases.GetProducts
+import com.abeemukthees.domain.usecases.product.GetProducts
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 

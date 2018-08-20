@@ -23,6 +23,7 @@ ext.versions = [
         rxAndroid              : '2.0.1',
         rxBinding              : '2.1.1',
         koin                   : '0.9.3',
+        anko                   : '0.10.5',
 
 
         timber                 : '4.7.1',
@@ -49,6 +50,9 @@ ext.libraries = [
         rxBindingRecyclerView  : "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:$versions.rxBinding",
         koinAndroid            : "org.koin:koin-android:$versions.koin",
         koinAndroidArchitecture: "org.koin:koin-android-architecture:$versions.koin",
+        ankoCommons            : "org.jetbrains.anko:anko-commons:$versions.anko",
+
+
 
 
         okhttp                 : "com.squareup.okhttp3:okhttp:$versions.okhttp",

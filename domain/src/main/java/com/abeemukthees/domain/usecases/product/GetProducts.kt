@@ -1,4 +1,4 @@
-package com.abeemukthees.domain.usecases
+package com.abeemukthees.domain.usecases.product
 
 import com.abeemukthees.domain.base.Action
 import com.abeemukthees.domain.base.State
@@ -7,7 +7,7 @@ import com.abeemukthees.domain.executor.PostExecutionThread
 import com.abeemukthees.domain.executor.ThreadExecutor
 import com.abeemukthees.domain.interactor.ObservableUseCase
 import com.abeemukthees.domain.repository.ProductRepository
-import com.abeemukthees.domain.statemachine.*
+import com.abeemukthees.domain.statemachine.home.*
 import com.freeletics.rxredux.StateAccessor
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
