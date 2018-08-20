@@ -1,7 +1,7 @@
 package com.abeemukthees.domain.entities
 
-class User(id: String,
-           name: String,
-           email: String,
-           phoneNumber: String,
-           profileImageUrl: String)
+data class User(val id: String,
+                val name: String,
+                val email: String,
+                val phoneNumber: String,
+                val profileImageUrl: String)

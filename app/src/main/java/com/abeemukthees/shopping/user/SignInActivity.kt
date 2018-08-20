@@ -4,11 +4,14 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import com.abeemukthees.domain.base.State
 import com.abeemukthees.domain.statemachine.user.UserAction
 import com.abeemukthees.domain.statemachine.user.UserState
 import com.abeemukthees.shopping.R
 import com.abeemukthees.shopping.base.BaseActivity
+import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
@@ -35,6 +38,14 @@ class SignInActivity : BaseActivity() {
         userViewModel.state.observe(this, Observer {
             setupViews(it!!)
         })
+
+        addDisposable(RxView.clicks(button_signIn)
+                .map { UserAction.UserSignInAction(edit_userName.text.toString(), edit_password.text.toString()) }
+                .subscribe(userViewModel.input))
+
+        userViewModel.input.accept(UserAction.CheckSignInStatusAction)
+
+
     }
 
 
@@ -42,6 +53,17 @@ class SignInActivity : BaseActivity() {
         Log.d(TAG, "setupViews with state = ${state::class.simpleName}")
 
         when (state) {
+
+
+            is UserState.CheckingUserSignInStatus -> {
+
+                progressBar.visibility = VISIBLE
+            }
+
+            is UserState.ValidatingUserCredentialsState -> {
+
+
+            }
 
             is UserState.UserCredentialsValidationState -> {
 
@@ -57,6 +79,33 @@ class SignInActivity : BaseActivity() {
                 button_signIn.backgroundTintList = ContextCompat.getColorStateList(this, if (state.username.first && state.password.first) R.color.validSignInButton else R.color.colorAccent)
 
             }
+
+            is UserState.SigningInUserState -> progressBar.visibility = VISIBLE
+
+            is UserState.UserSignedInSuccessfullyState -> {
+                showToastMessage("User signed in successfully")
+                progressBar.visibility = GONE
+            }
+
+            is UserState.UserSignedInState -> {
+
+                showToastMessage("User signed in")
+                progressBar.visibility = GONE
+            }
+
+            is UserState.UserSignedOutState -> {
+
+                showToastMessage("User not signed in")
+                progressBar.visibility = GONE
+            }
+
+
+            else -> {
+
+                progressBar.visibility = GONE
+
+            }
+
         }
 
     }

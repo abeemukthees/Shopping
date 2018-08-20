@@ -25,7 +25,7 @@ sealed class UserAction : Action {
 
     data class ValidateUserCredentialsAction(val username: String, val password: String) : UserAction()
 
-    //object ValidatingUserCredentialsAction : UserAction()
+    object ValidatingUserCredentialsAction : UserAction()
 
     data class UserCredentialsValidatedAction(val username: Pair<Boolean, String?>, val password: Pair<Boolean, String?>) : UserAction()
 
@@ -34,6 +34,12 @@ sealed class UserAction : Action {
     //object UserCredentialsInValidAction : UserAction()
 
     data class UserSignInAction(val username: String, val password: String) : UserAction()
+
+    object UserSignedInSuccessfullyAction : UserAction()
+
+    object SigningInUserAction : UserAction()
+
+    data class ErrorSigningInUserAction(val error: Throwable) : UserAction()
 }
 
 sealed class UserState : State {
@@ -42,7 +48,7 @@ sealed class UserState : State {
 
     object CheckingUserSignInStatus : UserState()
 
-    data class UserSignInStatusLoadedState(val isUserSignedIn: Boolean) : UserState()
+    //data class UserSignInStatusLoadedState(val isUserSignedIn: Boolean) : UserState()
 
     object ValidatingUserCredentialsState : UserState()
 
@@ -77,7 +83,7 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
             .doOnNext { println("Input Action ${it.javaClass.simpleName}") }
             .reduxStore(
                     initialState = UserState.InitialUserState,
-                    sideEffects = signInUser.listOfSideEffects,
+                    sideEffects = listOf(getUserLoginStatus::checkUserSignInStatus, signInUser::validateUserCredentials, signInUser::signInUser),
                     reducer = ::reducer)
             .distinctUntilChanged()
             .doOnNext { println("RxStore state ${it.javaClass.simpleName}") }
@@ -87,12 +93,25 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
         println("Reducing state =  ${state::class.simpleName}, action = ${action::class.simpleName}")
         return when (action) {
 
-            is UserAction.ValidateUserCredentialsAction -> UserState.ValidatingUserCredentialsState
+            is UserAction.CheckSignInStatusAction, is UserAction.StartCheckingUserSignInStatusAction, is UserAction.SigningInUserAction -> UserState.CheckingUserSignInStatus
+
+
+            is UserAction.ValidateUserCredentialsAction, is UserAction.ValidatingUserCredentialsAction -> UserState.ValidatingUserCredentialsState
 
             is UserAction.UserCredentialsValidatedAction -> {
 
                 UserState.UserCredentialsValidationState(action.username, action.password)
             }
+
+            is UserAction.UserSignInAction -> UserState.SigningInUserState
+
+            is UserAction.UserSignedInSuccessfullyAction -> UserState.UserSignedInSuccessfullyState
+
+            is UserAction.ErrorSigningInUserAction -> UserState.ErrorSigningInUserState(action.error)
+
+            is UserAction.UserSignedInAction -> UserState.UserSignedInState
+
+            is UserAction.UserNotSignedInAction -> UserState.UserSignedOutState
 
             else -> state
         }
