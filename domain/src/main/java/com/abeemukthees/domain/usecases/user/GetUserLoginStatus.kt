@@ -16,7 +16,11 @@ class GetUserLoginStatus(private val userRepository: UserRepository, threadExecu
         return userRepository.getUserLoginStatus().map { return@map if (it) UserAction.UserSignedInAction else UserAction.UserNotSignedInAction }
     }
 
-    fun checkUserSignInStatus(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> = execute(actions, state()).startWith(UserAction.StartCheckingUserSignInStatusAction)
+    fun checkUserSignInStatus(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> {
+        //println("SideEffect -> action = checkUserSignInStatus ${actions::class.simpleName}, state = ${state()::class.simpleName}")
+        return actions.ofType(UserAction.CheckSignInStatusAction::class.java)
+                .switchMap { execute(actions, state()).startWith(UserAction.StartCheckingUserSignInStatusAction) }
 
 
+    }
 }

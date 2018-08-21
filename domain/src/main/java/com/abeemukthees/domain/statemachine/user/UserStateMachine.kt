@@ -40,13 +40,19 @@ sealed class UserAction : Action {
     object SigningInUserAction : UserAction()
 
     data class ErrorSigningInUserAction(val error: Throwable) : UserAction()
+
+    data class ErrorSigningOutUserAction(val error: Throwable) : UserAction()
+
+    object SignOutUserAction : UserAction()
+
+    object SigningOutUserAction : UserAction()
 }
 
 sealed class UserState : State {
 
     object InitialUserState : UserState()
 
-    object CheckingUserSignInStatus : UserState()
+    object CheckingUserSignInStatusState : UserState()
 
     //data class UserSignInStatusLoadedState(val isUserSignedIn: Boolean) : UserState()
 
@@ -56,9 +62,13 @@ sealed class UserState : State {
 
     object SigningInUserState : UserState()
 
+    object SigningOutUserState : UserState()
+
     object UserSignedInSuccessfullyState : UserState()
 
     data class ErrorSigningInUserState(val error: Throwable) : UserState()
+
+    data class ErrorSigningOutUserState(val error: Throwable) : UserState()
 
     data class ErrorLoadingUserSignInState(val error: Throwable) : UserState()
 
@@ -83,17 +93,17 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
             .doOnNext { println("Input Action ${it.javaClass.simpleName}") }
             .reduxStore(
                     initialState = UserState.InitialUserState,
-                    sideEffects = listOf(getUserLoginStatus::checkUserSignInStatus, signInUser::validateUserCredentials, signInUser::signInUser),
+                    sideEffects = listOf(getUserLoginStatus::checkUserSignInStatus, signInUser::validateUserCredentials, signInUser::signInUser, signOutUser::signOutUser),
                     reducer = ::reducer)
             .distinctUntilChanged()
             .doOnNext { println("RxStore state ${it.javaClass.simpleName}") }
 
 
     override fun reducer(state: State, action: Action): State {
-        println("Reducing state =  ${state::class.simpleName}, action = ${action::class.simpleName}")
+        //println("Reducing -> action = ${action::class.simpleName}, state =  ${state::class.simpleName}")
         return when (action) {
 
-            is UserAction.CheckSignInStatusAction, is UserAction.StartCheckingUserSignInStatusAction, is UserAction.SigningInUserAction -> UserState.CheckingUserSignInStatus
+            is UserAction.CheckSignInStatusAction, is UserAction.StartCheckingUserSignInStatusAction, is UserAction.SigningInUserAction -> UserState.CheckingUserSignInStatusState
 
 
             is UserAction.ValidateUserCredentialsAction, is UserAction.ValidatingUserCredentialsAction -> UserState.ValidatingUserCredentialsState
@@ -112,6 +122,10 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
             is UserAction.UserSignedInAction -> UserState.UserSignedInState
 
             is UserAction.UserNotSignedInAction -> UserState.UserSignedOutState
+
+            is UserAction.SignOutUserAction, is UserAction.SigningOutUserAction -> UserState.SigningOutUserState
+
+            is UserAction.ErrorSigningOutUserAction -> UserState.ErrorSigningOutUserState(action.error)
 
             else -> state
         }

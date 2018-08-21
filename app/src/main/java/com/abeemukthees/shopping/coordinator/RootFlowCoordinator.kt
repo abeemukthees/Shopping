@@ -1,0 +1,3 @@
+package com.abeemukthees.shopping.coordinator
+
+class RootFlowCoordinator

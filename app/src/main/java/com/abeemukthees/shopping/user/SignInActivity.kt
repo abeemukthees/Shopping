@@ -4,6 +4,8 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import com.abeemukthees.domain.base.State
@@ -11,6 +13,7 @@ import com.abeemukthees.domain.statemachine.user.UserAction
 import com.abeemukthees.domain.statemachine.user.UserState
 import com.abeemukthees.shopping.R
 import com.abeemukthees.shopping.base.BaseActivity
+import com.jakewharton.rxbinding2.view.RxMenuItem
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
@@ -48,6 +51,14 @@ class SignInActivity : BaseActivity() {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val signOutMenuItem = menu.add(Menu.NONE, 1, Menu.NONE, "Signout")
+        signOutMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        signOutMenuItem.setIcon(R.drawable.ic_power_settings_new_white_24dp)
+        addDisposable(RxMenuItem.clicks(signOutMenuItem).map { UserAction.SignOutUserAction }.subscribe(userViewModel.input))
+        return super.onCreateOptionsMenu(menu)
+    }
+
 
     private fun setupViews(state: State) {
         Log.d(TAG, "setupViews with state = ${state::class.simpleName}")
@@ -55,7 +66,7 @@ class SignInActivity : BaseActivity() {
         when (state) {
 
 
-            is UserState.CheckingUserSignInStatus -> {
+            is UserState.CheckingUserSignInStatusState, is UserState.SigningInUserState, is UserState.SigningOutUserState -> {
 
                 progressBar.visibility = VISIBLE
             }
@@ -80,8 +91,6 @@ class SignInActivity : BaseActivity() {
 
             }
 
-            is UserState.SigningInUserState -> progressBar.visibility = VISIBLE
-
             is UserState.UserSignedInSuccessfullyState -> {
                 showToastMessage("User signed in successfully")
                 progressBar.visibility = GONE
@@ -99,6 +108,17 @@ class SignInActivity : BaseActivity() {
                 progressBar.visibility = GONE
             }
 
+            is UserState.ErrorSigningInUserState -> {
+
+                showToastMessage(state.error.localizedMessage)
+                progressBar.visibility = GONE
+            }
+
+            is UserState.ErrorSigningOutUserState -> {
+
+                showToastMessage(state.error.localizedMessage)
+                progressBar.visibility = GONE
+            }
 
             else -> {
 

@@ -16,7 +16,6 @@ class SignInUser(private val userRepository: UserRepository, threadExecutor: Thr
         return action.ofType(UserAction.UserSignInAction::class.java)
                 .switchMap { userRepository.signInUser(Params(it.username, it.password)) }
                 .map {
-
                     return@map if (it.first) UserAction.UserSignedInSuccessfullyAction
                     else UserAction.ErrorSigningInUserAction(it.second
                             ?: Throwable("Error signing in"))
@@ -26,25 +25,22 @@ class SignInUser(private val userRepository: UserRepository, threadExecutor: Thr
 
     //val listOfSideEffects = listOf(::validateUserCredentials, ::signInUser)
 
-    fun signInUser(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> = execute(actions, state()).startWith(UserAction.SigningInUserAction)
+    fun signInUser(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> = actions.ofType(UserAction.UserSignInAction::class.java).switchMap { execute(actions, state()).startWith(UserAction.SigningInUserAction) }
 
 
     fun validateUserCredentials(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> =
-            actions.ofType(UserAction.ValidateUserCredentialsAction::class.java).map<Action> {
+            actions.ofType(UserAction.ValidateUserCredentialsAction::class.java)
+                    .map { receivedAction ->
+                        println("username = ${receivedAction.username}, password = ${receivedAction.password}")
 
+                        val isUsernameValid = receivedAction.username.length > 6
+                        val isPasswordValid = receivedAction.password.length > 6
 
-        println("username = ${it.username}, password = ${it.password}")
+                        val usernameErrorMsg: String? = if (isUsernameValid) null else "Invalid username"
+                        val passwordErrorMsg: String? = if (isPasswordValid) null else "Invalid password"
 
-
-        val isUsernameValid = it.username.length > 6
-        val isPasswordValid = it.password.length > 6
-
-        val usernameErrorMsg: String? = if (isUsernameValid) null else "Invalid username"
-        val passwordErrorMsg: String? = if (isPasswordValid) null else "Invalid password"
-
-        UserAction.UserCredentialsValidatedAction(username = Pair(isUsernameValid, usernameErrorMsg), password = Pair(isPasswordValid, passwordErrorMsg))
-
-            }.startWith(UserAction.ValidatingUserCredentialsAction)
+                        (UserAction.UserCredentialsValidatedAction(username = Pair(isUsernameValid, usernameErrorMsg), password = Pair(isPasswordValid, passwordErrorMsg)) as Action)
+                    }.startWith(UserAction.CheckSignInStatusAction)
 
     data class Params(val username: String, val password: String)
 }

@@ -28,8 +28,14 @@ abstract class BaseViewModel(stateMachine: BaseStateMachine) : ViewModel() {
 
         //Log.d(TAG,"Init... $TAG")
 
+        state
+
         addDisposable(inputRelay.subscribe(stateMachine.input))
         addDisposable(stateMachine.state.subscribe { state -> mutableState.value = state })
+
+        val sharedSate = stateMachine.state.share()
+
+
     }
 
     override fun onCleared() {

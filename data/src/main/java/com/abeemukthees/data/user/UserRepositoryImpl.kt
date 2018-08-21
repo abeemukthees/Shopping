@@ -4,7 +4,6 @@ import com.abeemukthees.data.DataStoreFactory
 import com.abeemukthees.domain.entities.User
 import com.abeemukthees.domain.repository.UserRepository
 import com.abeemukthees.domain.usecases.user.SignInUser
-import io.reactivex.Completable
 import io.reactivex.Observable
 
 class UserRepositoryImpl(private val dataStoreFactory: DataStoreFactory) : UserRepository {
@@ -16,5 +15,5 @@ class UserRepositoryImpl(private val dataStoreFactory: DataStoreFactory) : UserR
     override fun signInUser(params: SignInUser.Params): Observable<Pair<Boolean, Throwable?>> = dataStoreFactory.userDataStore.signInUser(params.username, params.password)
 
 
-    override fun signOutUser(): Completable = dataStoreFactory.userDataStore.signOutUser()
+    override fun signOutUser(): Observable<Boolean> = dataStoreFactory.userDataStore.signOutUser()
 }

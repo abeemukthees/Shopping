@@ -3,7 +3,6 @@ package com.abeemukthees.data.user
 import android.content.Context
 import android.content.SharedPreferences
 import com.abeemukthees.domain.entities.User
-import io.reactivex.Completable
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 
@@ -62,8 +61,5 @@ class UserDataStore(private val context: Context) {
         return updateUserInfo(user).map { if (it) Pair(true, null) else Pair(false, Throwable("Error signing in user")) }.delay(3, TimeUnit.SECONDS)
     }
 
-    fun signOutUser(): Completable {
-        getUserDataSharedPreferencesEditor().putBoolean(IS_USER_SIGNED_IN, false).commit()
-        return Completable.complete().delay(3, TimeUnit.SECONDS)
-    }
+    fun signOutUser(): Observable<Boolean> = Observable.just(getUserDataSharedPreferencesEditor().putBoolean(IS_USER_SIGNED_IN, false).commit()).delay(3, TimeUnit.SECONDS)
 }

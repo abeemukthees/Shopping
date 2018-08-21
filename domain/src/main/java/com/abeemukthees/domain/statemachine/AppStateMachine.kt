@@ -1,3 +1,5 @@
 package com.abeemukthees.domain.statemachine
 
-class AppStateMachine
+import com.abeemukthees.domain.base.BaseStateMachine
+
+abstract class AppStateMachine : BaseStateMachine
