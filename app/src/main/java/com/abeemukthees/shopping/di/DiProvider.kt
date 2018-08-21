@@ -17,7 +17,10 @@ import com.abeemukthees.domain.usecases.user.SignInUser
 import com.abeemukthees.domain.usecases.user.SignOutUser
 import com.abeemukthees.shopping.HomeViewModel
 import com.abeemukthees.shopping.UiThread
+import com.abeemukthees.shopping.coordinator.HomeFlowCoordinator
+import com.abeemukthees.shopping.coordinator.Navigator
 import com.abeemukthees.shopping.coordinator.RootFlowCoordinator
+import com.abeemukthees.shopping.coordinator.SignInFlowCoordinator
 import com.abeemukthees.shopping.user.UserViewModel
 import org.koin.android.architecture.ext.viewModel
 import org.koin.dsl.module.applicationContext
@@ -43,7 +46,10 @@ val repositoryModule = applicationContext {
 
 val coordinatorModule = applicationContext {
 
-    bean { RootFlowCoordinator(get()) }
+    bean { Navigator() }
+    bean { RootFlowCoordinator(get(), get(), get()) }
+    bean { SignInFlowCoordinator(get()) }
+    bean { HomeFlowCoordinator(get()) }
 }
 
 val useCaseModule = applicationContext {
@@ -58,6 +64,6 @@ val useCaseModule = applicationContext {
 
 val viewModelModule = applicationContext {
 
-    viewModel { HomeViewModel(get()) }
-    viewModel { UserViewModel(get()) }
+    viewModel { HomeViewModel(get(), (get() as SignInFlowCoordinator)::navigate) }
+    viewModel { UserViewModel(get(), get(), null) }
 }

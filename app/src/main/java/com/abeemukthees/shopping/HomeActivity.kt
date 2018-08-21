@@ -12,13 +12,12 @@ import com.abeemukthees.domain.entities.Product
 import com.abeemukthees.domain.statemachine.home.HomeAction
 import com.abeemukthees.domain.statemachine.home.HomeState
 import com.abeemukthees.shopping.base.BaseActivity
-import com.abeemukthees.shopping.user.SignInActivity
+import com.abeemukthees.shopping.coordinator.NavigateToOnBoarding
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.view.RxView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home.*
 import kotlinx.android.synthetic.main.item_product.view.*
-import org.jetbrains.anko.startActivity
 import org.koin.android.architecture.ext.viewModel
 
 class HomeActivity : BaseActivity() {
@@ -47,7 +46,8 @@ class HomeActivity : BaseActivity() {
                 .map { HomeAction.LoadMoreDataAction }
                 .subscribe(homeViewModel.input))
 
-        addDisposable(RxView.clicks(fab).subscribe { startActivity<SignInActivity>() })
+        //addDisposable(RxView.clicks(fab).subscribe { startActivity<SignInActivity>() })
+        addDisposable(RxView.clicks(fab).map { NavigateToOnBoarding }.subscribe(homeViewModel.input))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
