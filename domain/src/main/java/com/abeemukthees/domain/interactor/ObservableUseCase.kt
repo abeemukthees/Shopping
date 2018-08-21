@@ -19,12 +19,12 @@ abstract class ObservableUseCase constructor(
     /**
      * Builds a [Observable] which will be used when the current [ObservableUseCase] is executed.
      */
-    protected abstract fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action>
+    protected abstract fun buildUseCaseObservable(action: Action, state: State): Observable<Action>
 
     /**
      * Executes the current use case.
      */
-    open fun execute(action: Observable<Action>, state: State): Observable<Action> {
+    open fun execute(action: Action, state: State): Observable<Action> {
         return buildUseCaseObservable(action, state)
                 .subscribeOn(Schedulers.from(threadExecutor))
                 .observeOn(postExecutionThread.scheduler) as Observable<Action>

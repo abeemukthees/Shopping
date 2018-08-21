@@ -49,7 +49,6 @@ dependencies {
 
     implementation libraries.timber
 
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
     testImplementation "android.arch.core:core-testing:1.1.1"
 

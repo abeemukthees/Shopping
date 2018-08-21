@@ -12,20 +12,25 @@ import io.reactivex.Observable
 
 class SignInUser(private val userRepository: UserRepository, threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionThread) : ObservableUseCase(threadExecutor, postExecutionThread) {
 
-    override fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action> {
-        return action.ofType(UserAction.UserSignInAction::class.java)
-                .switchMap { userRepository.signInUser(Params(it.username, it.password)) }
+    override fun buildUseCaseObservable(action: Action, state: State): Observable<Action> {
+        //println("signInUser buildUseCaseObservable  ${action.share().blockingFirst()::class.simpleName}, ${state::class.simpleName}")
+        return if (action is UserAction.UserSignInAction) userRepository.signInUser(Params(action.username, action.password))
                 .map {
                     return@map if (it.first) UserAction.UserSignedInSuccessfullyAction
                     else UserAction.ErrorSigningInUserAction(it.second
                             ?: Throwable("Error signing in"))
                 }
+        else Observable.just(UserAction.ErrorSigningInUserAction(Throwable("Error signing in user")))
     }
 
 
     //val listOfSideEffects = listOf(::validateUserCredentials, ::signInUser)
 
-    fun signInUser(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> = actions.ofType(UserAction.UserSignInAction::class.java).switchMap { execute(actions, state()).startWith(UserAction.SigningInUserAction) }
+    fun signInUser(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> {
+        return actions
+                //.doOnNext { println("signInUser ${it::class.simpleName}, ${state()::class.simpleName}") }
+                .ofType(UserAction.UserSignInAction::class.java).switchMap { execute(it, state()).startWith(UserAction.SigningInUserAction) }
+    }
 
 
     fun validateUserCredentials(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> =
@@ -40,7 +45,7 @@ class SignInUser(private val userRepository: UserRepository, threadExecutor: Thr
                         val passwordErrorMsg: String? = if (isPasswordValid) null else "Invalid password"
 
                         (UserAction.UserCredentialsValidatedAction(username = Pair(isUsernameValid, usernameErrorMsg), password = Pair(isPasswordValid, passwordErrorMsg)) as Action)
-                    }.startWith(UserAction.CheckSignInStatusAction)
+                    }.startWith(UserAction.ValidatingUserCredentialsAction)
 
     data class Params(val username: String, val password: String)
 }

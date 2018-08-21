@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit
 class GetProducts(private val productRepository: ProductRepository, threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionThread) : ObservableUseCase(threadExecutor, postExecutionThread) {
 
 
-    override fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action> {
+    override fun buildUseCaseObservable(action: Action, state: State): Observable<Action> {
         val page = (if (state is ContainsCollection) state.page else 0) + 1
-        println("GetProducts, Is State ContainsCollection = ${state is ContainsCollection}, State = ${state::class.simpleName},  calculated page = $page")
+        //println("GetProducts, Is State ContainsCollection = ${state is ContainsCollection}, State = ${state::class.simpleName},  calculated page = $page")
         return productRepository.getProducts(Params(SortBy.NEWEST, page))
                 .map<Action> { DataLoaded(it, page) }
                 .onErrorReturn { error -> ErrorLoadingMoreDataAction(error, page) }
@@ -32,7 +32,7 @@ class GetProducts(private val productRepository: ProductRepository, threadExecut
             actions.ofType(HomeAction.LoadInitialDataAction::class.java)
                     .filter { state() !is ContainsCollection } // If first page has already been loaded, do nothing
                     .switchMap {
-                        loadProducts(actions, state())
+                        loadProducts(it, state())
                     }
 
     private fun loadNextPageSideEffect(
@@ -42,7 +42,7 @@ class GetProducts(private val productRepository: ProductRepository, threadExecut
             actions
                     .ofType(HomeAction.LoadMoreDataAction::class.java)
                     .switchMap {
-                        loadProducts(actions, state())
+                        loadProducts(it, state())
                     }
 
 
@@ -60,7 +60,7 @@ class GetProducts(private val productRepository: ProductRepository, threadExecut
 
     val listOfSideEffects = listOf(::loadFirstPageSideEffect, ::loadNextPageSideEffect, ::showAndHideLoadingErrorSideEffect)
 
-    private fun loadProducts(actions: Observable<Action>, state: State): Observable<Action> {
+    private fun loadProducts(actions: Action, state: State): Observable<Action> {
         return execute(actions, state)
     }
 

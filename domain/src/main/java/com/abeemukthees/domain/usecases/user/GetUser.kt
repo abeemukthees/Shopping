@@ -10,7 +10,7 @@ import io.reactivex.Observable
 
 class GetUser(private val userRepository: UserRepository, threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionThread) : ObservableUseCase(threadExecutor, postExecutionThread) {
 
-    override fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action> {
+    override fun buildUseCaseObservable(action: Action, state: State): Observable<Action> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

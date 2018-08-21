@@ -12,11 +12,11 @@ import io.reactivex.Observable
 
 class SignOutUser(private val userRepository: UserRepository, threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionThread) : ObservableUseCase(threadExecutor, postExecutionThread) {
 
-    override fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action> {
+    override fun buildUseCaseObservable(action: Action, state: State): Observable<Action> {
         return userRepository.signOutUser().map { return@map if (it) UserAction.UserNotSignedInAction else UserAction.ErrorSigningOutUserAction(Throwable("Error signing out user")) }
     }
 
     fun signOutUser(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> = actions.ofType(UserAction.SignOutUserAction::class.java)
-            .switchMap { execute(actions, state()).startWith(UserAction.SigningOutUserAction) }
+            .switchMap { execute(it, state()).startWith(UserAction.SigningOutUserAction) }
 
 }

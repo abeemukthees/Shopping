@@ -103,8 +103,7 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
         //println("Reducing -> action = ${action::class.simpleName}, state =  ${state::class.simpleName}")
         return when (action) {
 
-            is UserAction.CheckSignInStatusAction, is UserAction.StartCheckingUserSignInStatusAction, is UserAction.SigningInUserAction -> UserState.CheckingUserSignInStatusState
-
+            is UserAction.CheckSignInStatusAction, is UserAction.StartCheckingUserSignInStatusAction -> UserState.CheckingUserSignInStatusState
 
             is UserAction.ValidateUserCredentialsAction, is UserAction.ValidatingUserCredentialsAction -> UserState.ValidatingUserCredentialsState
 
@@ -113,7 +112,7 @@ class UserStateMachine(getUserLoginStatus: GetUserLoginStatus, getUser: GetUser,
                 UserState.UserCredentialsValidationState(action.username, action.password)
             }
 
-            is UserAction.UserSignInAction -> UserState.SigningInUserState
+            is UserAction.UserSignInAction, is UserAction.SigningInUserAction -> UserState.SigningInUserState
 
             is UserAction.UserSignedInSuccessfullyAction -> UserState.UserSignedInSuccessfullyState
 

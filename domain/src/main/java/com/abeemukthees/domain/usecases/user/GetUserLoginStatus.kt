@@ -12,14 +12,14 @@ import io.reactivex.Observable
 
 class GetUserLoginStatus(private val userRepository: UserRepository, threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionThread) : ObservableUseCase(threadExecutor, postExecutionThread) {
 
-    override fun buildUseCaseObservable(action: Observable<Action>, state: State): Observable<Action> {
+    override fun buildUseCaseObservable(action: Action, state: State): Observable<Action> {
         return userRepository.getUserLoginStatus().map { return@map if (it) UserAction.UserSignedInAction else UserAction.UserNotSignedInAction }
     }
 
     fun checkUserSignInStatus(actions: Observable<Action>, state: StateAccessor<State>): Observable<Action> {
         //println("SideEffect -> action = checkUserSignInStatus ${actions::class.simpleName}, state = ${state()::class.simpleName}")
         return actions.ofType(UserAction.CheckSignInStatusAction::class.java)
-                .switchMap { execute(actions, state()).startWith(UserAction.StartCheckingUserSignInStatusAction) }
+                .switchMap { execute(it, state()).startWith(UserAction.StartCheckingUserSignInStatusAction) }
 
 
     }

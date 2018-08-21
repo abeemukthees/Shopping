@@ -94,18 +94,21 @@ class SignInActivity : BaseActivity() {
             is UserState.UserSignedInSuccessfullyState -> {
                 showToastMessage("User signed in successfully")
                 progressBar.visibility = GONE
+                text_user_signIn_status.text = "USER SIGNED IN"
             }
 
             is UserState.UserSignedInState -> {
 
                 showToastMessage("User signed in")
                 progressBar.visibility = GONE
+                text_user_signIn_status.text = "USER SIGNED IN"
             }
 
             is UserState.UserSignedOutState -> {
 
                 showToastMessage("User not signed in")
                 progressBar.visibility = GONE
+                text_user_signIn_status.text = "USER SIGNED OUT"
             }
 
             is UserState.ErrorSigningInUserState -> {

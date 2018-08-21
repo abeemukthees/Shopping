@@ -17,12 +17,12 @@ import com.abeemukthees.domain.usecases.user.SignInUser
 import com.abeemukthees.domain.usecases.user.SignOutUser
 import com.abeemukthees.shopping.HomeViewModel
 import com.abeemukthees.shopping.UiThread
+import com.abeemukthees.shopping.coordinator.RootFlowCoordinator
 import com.abeemukthees.shopping.user.UserViewModel
 import org.koin.android.architecture.ext.viewModel
-import org.koin.dsl.module.Module
 import org.koin.dsl.module.applicationContext
 
-val ShoppingAppModule: Module = applicationContext {
+val shoppingAppModule = applicationContext {
 
     bean { JobExecutor() as ThreadExecutor }
     bean { UiThread() as PostExecutionThread }
@@ -39,6 +39,11 @@ val repositoryModule = applicationContext {
     bean { DataStoreFactory(get()) }
     bean { ProductRepositoryImpl(get()) as ProductRepository }
     bean { UserRepositoryImpl(get()) as UserRepository }
+}
+
+val coordinatorModule = applicationContext {
+
+    bean { RootFlowCoordinator(get()) }
 }
 
 val useCaseModule = applicationContext {

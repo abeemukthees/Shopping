@@ -17,7 +17,7 @@ ext.versions = [
         moshi                  : '1.6.0',
 
         support                : '27.1.1',
-        supportConstraintLayout: '1.0.2',
+        supportConstraintLayout: '1.1.2',
         viewModel              : '1.1.1',
 
         rxAndroid              : '2.0.1',
